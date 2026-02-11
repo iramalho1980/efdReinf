@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manual EFD-Reinf: Distribuição de Lucros</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome para o ícone de engrenagem -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #ffffff;
+            --glass-bg: rgba(255, 255, 255, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+            --text-main: #ffffff;
+            --text-muted: rgba(255, 255, 255, 0.7);
+            --accent: #ffd89b;
+            
+            /* Skin 1 (Default) */
+            --bg-skin: linear-gradient(to right, #19547b, #ffd89b);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background: var(--bg-skin);
+            background-attachment: fixed;
+            color: var(--text-main);
+            min-height: 100vh;
+            padding: 2rem 1rem;
+            line-height: 1.6;
+            transition: background 0.5s ease;
+        }
+
+        /* Configurações do Seletor de Skin */
+        .skin-selector {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+
+        .gear-btn {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            color: white;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1.2rem;
+            box-shadow: var(--glass-shadow);
+            transition: transform 0.3s ease;
+        }
+
+        .gear-btn:hover {
+            transform: rotate(90deg);
+        }
+
+        .skin-menu {
+            position: absolute;
+            top: 55px;
+            right: 0;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(15px);
+            border: 1px solid var(--glass-border);
+            border-radius: 15px;
+            padding: 10px;
+            display: none;
+            flex-direction: column;
+            gap: 8px;
+            width: 180px;
+            box-shadow: var(--glass-shadow);
+        }
+
+        .skin-menu.active {
+            display: flex;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .skin-option {
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: background 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .skin-option:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .color-preview {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            border: 1px solid white;
+        }
+
+        /* Estilo Glassmorphism Aprimorado */
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        h1 {
+            font-size: 2.8rem;
+            font-weight: 800;
+            text-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            margin-bottom: 0.5rem;
+            letter-spacing: -1px;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(16px) saturate(180%);
+            -webkit-backdrop-filter: blur(16px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 30px;
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2), 
+                        inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Efeito de brilho no topo do card */
+        .glass-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 40%;
+            background: linear-gradient(to bottom, rgba(255,255,255,0.05) 0%, transparent 100%);
+            pointer-events: none;
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.6rem;
+            margin-bottom: 1.8rem;
+            font-weight: 700;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 2rem;
+            padding: 5px;
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 15px;
+            width: fit-content;
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            padding: 10px 20px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: 0.3s;
+            border-radius: 10px;
+        }
+
+        .tab-btn.active {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: slideUp 0.5s ease;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .step-item {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 1.2rem;
+            padding: 1.2rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 18px;
+            transition: 0.3s;
+        }
+
+        .step-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: scale(1.01);
+        }
+
+        .step-number {
+            background: white;
+            color: #19547b;
+            width: 32px;
+            height: 32px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            flex-shrink: 0;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 6px 14px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.8rem;
+        }
+
+        .badge-isento { background: rgba(52, 211, 153, 0.2); color: #6ee7b7; border: 1px solid rgba(110, 231, 183, 0.3); }
+        .badge-tributado { background: rgba(248, 113, 113, 0.2); color: #fca5a5; border: 1px solid rgba(252, 165, 165, 0.3); }
+
+        .alert {
+            background: rgba(251, 191, 36, 0.15);
+            border: 1px solid rgba(251, 191, 36, 0.3);
+            padding: 1.2rem;
+            margin: 1.5rem 0;
+            border-radius: 15px;
+            display: flex;
+            gap: 12px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 8px;
+            margin-top: 1rem;
+        }
+
+        th {
+            text-align: left;
+            padding: 15px;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+        }
+
+        td {
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        td:first-child { border-radius: 12px 0 0 12px; }
+        td:last-child { border-radius: 0 12px 12px 0; }
+
+        code {
+            background: rgba(0,0,0,0.2);
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: 600;
+            color: #ffd89b;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 4rem;
+            padding-bottom: 2rem;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        @media (max-width: 600px) {
+            h1 { font-size: 2rem; }
+            .glass-card { padding: 1.5rem; }
+            .tabs { flex-wrap: wrap; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Seletor de Skin -->
+<div class="skin-selector">
+    <button class="gear-btn" onclick="toggleMenu()">
+        <i class="fas fa-cog"></i>
+    </button>
+    <div class="skin-menu" id="skinMenu">
+        <div class="skin-option" onclick="setSkin(1)">
+            <div class="color-preview" style="background: linear-gradient(to right, #19547b, #ffd89b);"></div>
+            Ocean Sunset
+        </div>
+        <div class="skin-option" onclick="setSkin(2)">
+            <div class="color-preview" style="background: linear-gradient(to right, #004e92, #000428);"></div>
+            Deep Blue
+        </div>
+        <div class="skin-option" onclick="setSkin(3)">
+            <div class="color-preview" style="background: linear-gradient(to right, #237A57, #093028);"></div>
+            Forest Night
+        </div>
+        <div class="skin-option" onclick="setSkin(4)">
+            <div class="color-preview" style="background: linear-gradient(to right, #283E51, #4B79A1);"></div>
+            Steel Grey
+        </div>
+        <div class="skin-option" onclick="setSkin(5)">
+            <div class="color-preview" style="background: linear-gradient(to right, #2C5364, #203A43, #0F2027);"></div>
+            Midnight
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <header>
+        <h1>Manual EFD-Reinf</h1>
+        <p class="subtitle" style="font-size: 1.2rem; opacity: 0.9;">Distribuição de Lucros e Dividendos • 2026</p>
+    </header>
+
+    <!-- Resumo das Regras -->
+    <div class="glass-card">
+        <h2 class="section-title"><i class="fas fa-info-circle"></i> Resumo das Regras</h2>
+        <div class="grid">
+            <div style="background: rgba(255,255,255,0.03); padding: 1.5rem; border-radius: 20px; border: 1px solid rgba(255,255,255,0.05);">
+                <span class="badge badge-isento">Isento</span>
+                <p style="margin-top: 10px;">• Lucro apurado/deliberado até <strong>31/12/2025</strong>.</p>
+                <p>• Lucro apurado em 2026 <strong>&lt; R$ 50.000,00</strong> por beneficiário.</p>
+            </div>
+            <div style="background: rgba(255,255,255,0.03); padding: 1.5rem; border-radius: 20px; border: 1px solid rgba(255,255,255,0.05);">
+                <span class="badge badge-tributado">Tributado</span>
+                <p style="margin-top: 10px;">• Lucro apurado em 2026 <strong>&gt; R$ 50.000,00</strong> por beneficiário.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navegação Interativa -->
+    <div class="glass-card">
+        <div class="tabs">
+            <button class="tab-btn active" onclick="openTab(event, 'isento')">Lançar Isento</button>
+            <button class="tab-btn" onclick="openTab(event, 'tributado')">Lançar Tributável</button>
+            <button class="tab-btn" onclick="openTab(event, 'prazos')">Prazos e Envio</button>
+        </div>
+
+        <!-- Conteúdo Isento -->
+        <div id="isento" class="tab-content active">
+            <h3 style="margin-bottom: 1.5rem; font-weight: 700;">Passo a Passo: Rendimentos Isentos</h3>
+            <div class="step-list">
+                <div class="step-item">
+                    <div class="step-number">1</div>
+                    <div><strong>Menu:</strong> Relatórios > Informativos > Federais > EFD-Reinf > Enviar Arquivos.</div>
+                </div>
+                <div class="step-item">
+                    <div class="step-number">2</div>
+                    <div><strong>Ação:</strong> Clique em <code>Outros Dados</code> e selecione a guia <code>Rendimentos Isentos</code>.</div>
+                </div>
+                <div class="step-item">
+                    <div class="step-number">3</div>
+                    <div><strong>Dados:</strong> Preencha Data, Beneficiário (CPF/CNPJ), País e Natureza do Rendimento.</div>
+                </div>
+            </div>
+            <div class="alert">
+                <i class="fas fa-exclamation-triangle" style="color: #fbbf24; font-size: 1.2rem;"></i>
+                <div>
+                    <strong>Atenção:</strong> Se o valor exceder R$ 50 mil, o sistema alertará. Use "Isento" apenas para lucros de 2025 ou valores abaixo do limite em 2026.
+                </div>
+            </div>
+        </div>
+
+        <!-- Conteúdo Tributado -->
+        <div id="tributado" class="tab-content">
+            <h3 style="margin-bottom: 1.5rem; font-weight: 700;">Passo a Passo: Rendimentos Tributáveis</h3>
+            
+            <div style="margin-bottom: 2rem;">
+                <h4 style="margin-bottom: 1rem; opacity: 0.9; display: flex; align-items: center; gap: 8px;">
+                    <i class="fas fa-tools"></i> 1. Configuração do IRRF
+                </h4>
+                <div class="step-item">
+                    <div class="step-number">A</div>
+                    <div>Vá em <code>Arquivos > Impostos > 16 – IRRF</code>. Crie vigência <strong>01/2026</strong>.</div>
+                </div>
+                <div class="step-item">
+                    <div class="step-number">B</div>
+                    <div>Guia <code>Recolhimentos</code>: Adicione códigos <strong>184101</strong> e <strong>184102</strong>.</div>
+                </div>
+            </div>
+
+            <div>
+                <h4 style="margin-bottom: 1rem; opacity: 0.9; display: flex; align-items: center; gap: 8px;">
+                    <i class="fas fa-edit"></i> 2. Lançamento do Movimento
+                </h4>
+                <div class="step-item">
+                    <div class="step-number">1</div>
+                    <div>Menu <code>Movimentos > Outros > Lucros e Dividendos Tributáveis</code>.</div>
+                </div>
+                <div class="step-item">
+                    <div class="step-number">2</div>
+                    <div>Informe Data, Beneficiário e Valor. O cálculo do IRRF (10%) é automático.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Conteúdo Prazos -->
+        <div id="prazos" class="tab-content">
+            <h3 style="margin-bottom: 1.5rem; font-weight: 700;">Calendário de Transmissão</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Categoria</th>
+                        <th>Frequência</th>
+                        <th>Prazo de Entrega</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><span class="badge badge-isento">Isentos</span></td>
+                        <td>Trimestral</td>
+                        <td>15º dia do 2º mês subsequente ao trimestre</td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-tributado">Tributáveis</span></td>
+                        <td>Mensal</td>
+                        <td>Até o 15º dia do mês subsequente</td>
+                    </tr>
+                </tbody>
+            </table>
+            <div style="margin-top: 2rem; padding: 1.5rem; background: rgba(255,255,255,0.03); border-radius: 15px;">
+                <p><strong>Eventos Obrigatórios:</strong></p>
+                <p style="margin-top: 5px; opacity: 0.8;">• <strong>R-4010:</strong> Pagamentos a Pessoa Física.</p>
+                <p style="opacity: 0.8;">• <strong>R-4020:</strong> Pagamentos a Pessoa Jurídica.</p>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>Desenvolvido com base no material da Central de Soluções Domínio</p>
+        <p>&copy; 2026 • Guia Interativo EFD-Reinf</p>
+    </footer>
+</div>
+
+<script>
+    // Controle das Abas
+    function openTab(evt, tabName) {
+        var i, tabcontent, tablinks;
+        tabcontent = document.getElementsByClassName("tab-content");
+        for (i = 0; i < tabcontent.length; i++) {
+            tabcontent[i].style.display = "none";
+            tabcontent[i].classList.remove("active");
+        }
+        tablinks = document.getElementsByClassName("tab-btn");
+        for (i = 0; i < tablinks.length; i++) {
+            tablinks[i].className = tablinks[i].className.replace(" active", "");
+        }
+        document.getElementById(tabName).style.display = "block";
+        setTimeout(() => {
+            document.getElementById(tabName).classList.add("active");
+        }, 10);
+        evt.currentTarget.className += " active";
+    }
+
+    // Controle do Menu de Skins
+    function toggleMenu() {
+        const menu = document.getElementById('skinMenu');
+        menu.classList.toggle('active');
+    }
+
+    // Fechar menu ao clicar fora
+    window.onclick = function(event) {
+        if (!event.target.matches('.gear-btn') && !event.target.matches('.fa-cog')) {
+            const menu = document.getElementById('skinMenu');
+            if (menu.classList.contains('active')) {
+                menu.classList.remove('active');
+            }
+        }
+    }
+
+    // Troca de Skins
+    function setSkin(id) {
+        const body = document.body;
+        let gradient = "";
+        
+        switch(id) {
+            case 1:
+                gradient = "linear-gradient(to right, #19547b, #ffd89b)";
+                break;
+            case 2:
+                gradient = "linear-gradient(to right, #004e92, #000428)";
+                break;
+            case 3:
+                gradient = "linear-gradient(to right, #237A57, #093028)";
+                break;
+            case 4:
+                gradient = "linear-gradient(to right, #283E51, #4B79A1)";
+                break;
+            case 5:
+                gradient = "linear-gradient(to right, #2C5364, #203A43, #0F2027)";
+                break;
+        }
+        
+        body.style.background = gradient;
+        body.style.backgroundAttachment = "fixed";
+        toggleMenu();
+    }
+</script>
+
+</body>
+</html>
